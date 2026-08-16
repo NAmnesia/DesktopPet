@@ -1,0 +1,220 @@
+/* ===== 宠物窗口：全透明，底部居中放宠物 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 14px;
+}
+
+.hidden { display: none !important; }
+
+/* ===== 聊天气泡 ===== */
+#bubble {
+  width: max-content;
+  max-width: calc(var(--pet-w, 240px) + 170px);
+  min-width: 140px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(240, 217, 168, 0.85);
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  position: relative;
+  max-height: 300px;
+  overflow: hidden;
+  cursor: default;
+}
+
+#bubble.expand { max-height: none; }
+
+/* 气泡小尾巴 */
+#bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #F0D9A8;
+}
+
+#bubble-user {
+  font-size: 12px;
+  color: #9A8F7D;
+  text-align: right;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #EBDFC6;
+  word-break: break-all;
+}
+
+#bubble-text {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #4A4034;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#bubble-text .thinking {
+  animation: dots 1.2s infinite;
+  color: #B0A48E;
+}
+@keyframes dots {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+#bubble-text.error { color: #C0564F; }
+
+#bubble-stop {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #C0564F;
+  cursor: pointer;
+  user-select: none;
+  width: max-content;
+}
+#bubble-stop:hover { text-decoration: underline; }
+
+/* ===== 聊天输入框：透明、贴近人物、宽度随人物实际大小 ===== */
+#chat-input-box {
+  margin-bottom: 7px;
+  width: calc(var(--pet-w, 240px) + 110px);
+  max-width: 400px;
+}
+
+#chat-input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  border: 2px solid transparent;
+  border-radius: 22px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px);
+  color: #5FA8E8; /* 淡蓝色文字 */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+}
+#chat-input::placeholder { color: rgba(95, 168, 232, 0.55); }
+#chat-input:focus { border-color: transparent; }
+
+/* ===== 番茄钟徽章 ===== */
+#timer-badge {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: rgba(74, 64, 52, 0.82);
+  border-radius: 14px;
+  color: #FFF3DA;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease;
+}
+#timer-badge:hover { transform: scale(1.06); }
+#timer-badge.rest { background: rgba(78, 116, 81, 0.88); }
+
+/* ===== 宠物本体：尺寸由 JS 按图片实际宽高比设置（右键/悬停区即图片实际大小） ===== */
+#stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+#pet {
+  position: relative;
+  cursor: grab;
+  transform-origin: 50% 100%;
+  touch-action: none; /* 拖拽用 Pointer Events + 指针捕获 */
+}
+
+#pet:active { cursor: grabbing; }
+
+#builtin-pet, #pet-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 图片角色保持比例，不拉伸变形 */
+  display: block;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+}
+
+/* --- 待机：呼吸 + 眨眼 + 摇耳朵 --- */
+#pet.idle { animation: breathe 3.2s ease-in-out infinite; }
+@keyframes breathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.035) scaleX(0.99); }
+}
+
+.eye .eyeball {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 4.6s infinite;
+}
+@keyframes blink {
+  0%, 91%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.08); }
+  97% { transform: scaleY(1); }
+}
+
+.ear {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+}
+#pet.idle .ear.left  { animation: sway 3.2s ease-in-out infinite; }
+#pet.idle .ear.right { animation: sway 3.2s ease-in-out -0.4s infinite; }
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+/* --- 说话：嘴巴开合 --- */
+#pet .mouth { transform-box: fill-box; transform-origin: center; }
+#pet .mouth-talk { display: none; }
+#pet.talk .mouth-idle { display: none; }
+#pet.talk .mouth-talk { display: block; animation: yap 0.32s ease-in-out infinite alternate; }
+@keyframes yap {
+  from { transform: scaleY(0.45); }
+  to { transform: scaleY(1.15); }
+}
+#pet.talk { animation: bounce 0.6s ease-in-out infinite; }
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* --- 拖拽：纯平移，不做任何形变/过渡动画（.drag 状态仅供图片角色切换 drag.png） --- */
+
+/* ===== 锁定模式：全部点击穿透，人物不影响桌面操作 ===== */
+body.locked #pet,
+body.locked #bubble,
+body.locked #timer-badge,
+body.locked #chat-input-box { pointer-events: none; }
+body.locked #pet { cursor: default; }
+
+/* ===== 呼吸浮动动画（图片角色，设置里可开关） ===== */
+#pet.bob { animation: bob 3.2s ease-in-out infinite; }
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+/* 开关关闭时，内置 SVG 的呼吸/眨眼动画也停用 */
+#pet.anim-off.idle { animation: none; }
+#pet.anim-off.idle .eye .eyeball { animation: none; }

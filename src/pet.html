@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <title>pet</title>
+  <link rel="stylesheet" href="pet.css">
+</head>
+<body>
+  <!-- 聊天气泡 -->
+  <div id="bubble" class="hidden interactive">
+    <div id="bubble-user" class="hidden"></div>
+    <div id="bubble-body">
+      <div id="bubble-text"></div>
+      <div id="bubble-stop" class="hidden">■ 停止生成</div>
+    </div>
+  </div>
+
+  <!-- 聊天输入框 -->
+  <div id="chat-input-box" class="hidden interactive">
+    <input id="chat-input" type="text" placeholder="跟它说点什么…（Enter 发送 / Esc 收起）" autocomplete="off">
+  </div>
+
+  <!-- 番茄钟计时徽章 -->
+  <div id="timer-badge" class="hidden interactive" title="点击查看番茄钟详情">
+    <span id="timer-icon">🍅</span>
+    <span id="timer-text">25:00</span>
+  </div>
+
+  <!-- 宠物本体 -->
+  <div id="stage">
+    <div id="pet" class="idle interactive">
+      <!-- 内置简易角色（美术占位，角色文件夹有 idle 图时自动替换） -->
+      <svg id="builtin-pet" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <ellipse class="shadow" cx="100" cy="188" rx="50" ry="9" fill="rgba(0,0,0,0.18)"/>
+        <g class="ears">
+          <ellipse class="ear left"  cx="58"  cy="52" rx="15" ry="21" fill="#FFE9C4" stroke="#E8B36B" stroke-width="4"/>
+          <ellipse class="ear right" cx="142" cy="52" rx="15" ry="21" fill="#FFE9C4" stroke="#E8B36B" stroke-width="4"/>
+        </g>
+        <ellipse class="body" cx="100" cy="112" rx="68" ry="64" fill="#FFF3DA" stroke="#E8B36B" stroke-width="5"/>
+        <g class="eyes">
+          <g class="eye left">
+            <ellipse class="eyeball" cx="76"  cy="103" rx="7" ry="9" fill="#3B342E"/>
+            <circle cx="78.5" cy="100" r="2.4" fill="#fff"/>
+          </g>
+          <g class="eye right">
+            <ellipse class="eyeball" cx="124" cy="103" rx="7" ry="9" fill="#3B342E"/>
+            <circle cx="126.5" cy="100" r="2.4" fill="#fff"/>
+          </g>
+        </g>
+        <ellipse cx="57"  cy="124" rx="10" ry="6" fill="#FFABAB" opacity="0.75"/>
+        <ellipse cx="143" cy="124" rx="10" ry="6" fill="#FFABAB" opacity="0.75"/>
+        <path class="mouth mouth-idle" d="M 90 124 Q 100 132 110 124" stroke="#3B342E" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <ellipse class="mouth mouth-talk" cx="100" cy="127" rx="8" ry="6" fill="#8A5040"/>
+      </svg>
+      <!-- 图片角色（用户自备美术） -->
+      <img id="pet-img" class="hidden" alt="" draggable="false">
+    </div>
+  </div>
+
+  <script src="pet.js"></script>
+</body>
+</html>

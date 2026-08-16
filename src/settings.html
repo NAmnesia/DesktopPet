@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
+  <title>桌宠设置</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <main>
+    <h1>桌宠设置</h1>
+
+    <!-- ===== 模型服务 ===== -->
+    <section>
+      <h2>模型服务</h2>
+      <p class="tip">云端 API 与本地模型（Ollama 等）任意切换，全部走 OpenAI 兼容接口。</p>
+
+      <label class="row">
+        <span>服务商</span>
+        <select id="provider"></select>
+      </label>
+
+      <label class="row">
+        <span>接口地址 Base URL</span>
+        <input id="base-url" type="text" placeholder="例如 http://localhost:11434/v1">
+      </label>
+
+      <label class="row">
+        <span>API Key</span>
+        <span class="inline">
+          <input id="api-key" type="password" placeholder="Ollama 本地无需填写">
+          <button id="toggle-key" class="mini" type="button">显示</button>
+        </span>
+      </label>
+
+      <label class="row">
+        <span>模型名</span>
+        <span class="inline">
+          <input id="model" type="text" list="model-list" placeholder="例如 qwen2.5:7b">
+          <datalist id="model-list"></datalist>
+          <button id="fetch-models" class="mini" type="button">获取列表</button>
+        </span>
+      </label>
+      <p class="tip" id="models-tip"></p>
+
+      <div class="row">
+        <span></span>
+        <span class="inline">
+          <button id="test-conn" type="button">测试连接</button>
+          <span id="test-result" class="result"></span>
+        </span>
+      </div>
+    </section>
+
+    <!-- ===== 宠物人设 ===== -->
+    <section>
+      <h2>宠物人设</h2>
+      <label class="row">
+        <span>人设预设</span>
+        <select id="persona-preset"></select>
+      </label>
+      <p class="tip">选择预设会填充下方提示词，选完还可以手动微调，保存后即生效。</p>
+      <label class="row">
+        <span>宠物名字</span>
+        <input id="pet-name" type="text" maxlength="20">
+      </label>
+      <label class="row">
+        <span>系统提示词<br><em>（决定性格与说话方式）</em></span>
+        <textarea id="system-prompt" rows="5"></textarea>
+      </label>
+    </section>
+
+    <!-- ===== 番茄钟 ===== -->
+    <section>
+      <h2>番茄钟</h2>
+      <p class="tip">在宠物右键菜单或托盘菜单点"开始番茄钟"。每段专注/休息结束时宠物会用 <b>AI 现场生成</b>一句不重样的提醒，同时弹系统通知。</p>
+      <label class="row">
+        <span>专注时长（分钟）</span>
+        <input id="pomo-work" type="number" min="1" max="180" step="1" style="width:110px">
+      </label>
+      <label class="row">
+        <span>休息时长（分钟）</span>
+        <input id="pomo-rest" type="number" min="1" max="60" step="1" style="width:110px">
+      </label>
+      <label class="row">
+        <span>每周期轮数</span>
+        <input id="pomo-rounds" type="number" min="1" max="12" step="1" style="width:110px">
+      </label>
+      <p class="tip">一轮 = 专注 + 休息；跑完全部轮次后提醒"周期完成"并停止。进行中修改参数将在下次开始时生效。</p>
+    </section>
+
+    <!-- ===== 屏幕观察 ===== -->
+    <section>
+      <h2>屏幕观察（仅本地模型）</h2>
+      <p class="tip">开启后宠物会定期"看一眼"你的屏幕（截屏发送给 <b>本地</b> 视觉模型，如 qwen2.5vl），然后用人设口吻主动搭话。截图<b>只在内存中处理、不保存</b>；使用云端 API 时此功能自动停用。</p>
+      <label class="row">
+        <span>启用屏幕观察</span>
+        <input id="screen-watch" type="checkbox" style="width:20px;height:20px;margin-top:8px">
+      </label>
+      <label class="row">
+        <span>观察间隔（分钟）</span>
+        <input id="screen-watch-min" type="number" min="5" max="180" step="1" style="width:110px">
+      </label>
+      <p class="tip">开启后约 25 秒会先看第一眼，之后按间隔执行；点评会避开最近说过的说法。需要模型支持视觉（qwen2.5vl 系列）。</p>
+    </section>
+
+    <!-- ===== 外观 ===== -->
+    <section>
+      <h2>外观</h2>
+      <div class="row">
+        <span>角色</span>
+        <span class="inline char-row">
+          <img id="char-preview" src="" alt="">
+          <span class="char-meta">
+            <select id="character"></select>
+            <span id="char-desc" class="tip"></span>
+          </span>
+        </span>
+      </div>
+      <p class="tip">
+        换肤方法：点 <button id="open-chars" class="mini" type="button">打开角色文件夹</button>，
+        新建一个文件夹（如 <code>my-pet</code>），放入 <code>idle.png</code>（待机，必需）、
+        <code>talk.png</code>（说话）、<code>drag.png</code>（拖拽）即可在此下拉选择。支持 png/jpg/webp/gif。
+      </p>
+
+      <label class="row">
+        <span>宠物大小 <b id="scale-val"></b></span>
+        <input id="scale" type="range" min="0.4" max="2" step="0.05">
+      </label>
+
+      <label class="row">
+        <span>呼吸浮动动画</span>
+        <input id="breath-anim" type="checkbox" style="width:20px;height:20px;margin-top:8px">
+      </label>
+
+      <label class="row">
+        <span>气泡自动消失（秒，0=不消失）</span>
+        <input id="bubble-timeout" type="number" min="0" max="600" step="1" style="width:110px">
+      </label>
+
+      <label class="row">
+        <span>记忆对话轮数</span>
+        <input id="history-limit" type="number" min="1" max="50" step="1" style="width:110px">
+      </label>
+    </section>
+  </main>
+
+  <footer>
+    <span id="saved-toast">✔ 已保存并生效</span>
+    <button id="save" type="button">保存</button>
+  </footer>
+
+  <script src="settings.js"></script>
+</body>
+</html>

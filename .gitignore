@@ -1,0 +1,20 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+*.exe
+*.ico.tmp
+
+# 临时/调试文件
+.shot*
+.swlog*
+.draglog*
+_shot*
+_icon_preview*
+_miku*
+_t.b64
+
+# 系统文件
+Thumbs.db
+.DS_Store
