@@ -1,7 +1,7 @@
 {
   "name": "desktop-pet",
   "productName": "DesktopPet",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "桌面宠物 - 可接入云端 API 或本地 Ollama 千问2.5 的桌宠",
   "main": "main.js",
   "author": "you",
@@ -35,7 +35,9 @@
       "target": [
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
