@@ -511,8 +511,12 @@ function petBubbleText(text) {
 }
 
 // ---------- 屏幕观察（仅本地视觉模型，截图绝不出本机） ----------
-const screenWatch = { timer: null, busy: false };
+const screenWatch = { timer: null, delay: null, busy: false, lastAt: 0 };
 const recentScreenMsgs = []; // 最近几条屏幕点评，避免重复套路
+
+function screenWatchIntervalMs() {
+  return Math.round(clampNum(config.screenWatchMin, 5, 180, 30)) * 60 * 1000;
+}
 
 function isLocalLLM() {
   try {
@@ -523,20 +527,26 @@ function isLocalLLM() {
 }
 
 function syncScreenWatch() {
+  // 必须同时清 interval 和首看的 setTimeout，否则重复同步会泄漏孤儿定时器导致高频截图
   clearInterval(screenWatch.timer);
+  clearTimeout(screenWatch.delay);
   screenWatch.timer = null;
+  screenWatch.delay = null;
   const on = !!config.screenWatch;
   if (!on) return;
   if (!isLocalLLM()) {
     console.log('[屏幕观察] 当前为云端 API，已自动停用（截图只发给本地模型）');
     return;
   }
-  const ms = Math.round(clampNum(config.screenWatchMin, 5, 180, 30)) * 60 * 1000;
+  const ms = screenWatchIntervalMs();
   // 开启 25 秒后先看一眼，之后按间隔
-  setTimeout(() => {
+  screenWatch.delay = setTimeout(() => {
+    screenWatch.delay = null;
     if (!config.screenWatch) return;
     screenWatchTick();
-    screenWatch.timer = setInterval(screenWatchTick, ms);
+    if (!screenWatch.timer && config.screenWatch) {
+      screenWatch.timer = setInterval(screenWatchTick, ms);
+    }
     console.log(`[屏幕观察] 已启动，每 ${Math.round(ms / 60000)} 分钟一次`);
   }, 25 * 1000);
 }
@@ -544,8 +554,12 @@ function syncScreenWatch() {
 async function screenWatchTick() {
   if (screenWatch.busy || !config.screenWatch) return;
   if (!isLocalLLM()) { syncScreenWatch(); return; }
+  // 双保险：距上次观察不足设定间隔的 90% 就跳过，即使存在泄漏的定时器也不会高频截图
+  const ms = screenWatchIntervalMs();
+  if (Date.now() - screenWatch.lastAt < ms * 0.9) return;
   if (chatAbort) return; // 正在对话流式中，不打断
   screenWatch.busy = true;
+  screenWatch.lastAt = Date.now();
   try {
     const primary = screen.getPrimaryDisplay();
     const sources = await desktopCapturer.getSources({
