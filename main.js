@@ -93,6 +93,7 @@ function createPetWindow() {
     hasShadow: false,
     skipTaskbar: true,
     alwaysOnTop: true,
+    title: '桌面宠物',
     backgroundColor: '#00000000',
     icon: nativeImage.createFromPath(ICON_PATH),
     webPreferences: {
